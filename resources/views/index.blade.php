@@ -8,17 +8,12 @@
 <div class="container" align="center">
 <div><h2>Patients Data</h2></div></br>
 
-<form action="/search" method="POST" role="search">
-    {{ csrf_field() }}
-    <div class="input-group">
-        <input type="text" class="form-control" name="q"
-            placeholder="Search "> <span class="input-group-btn">
-            <button type="submit" class="btn btn-default">
-                <span class="glyphicon glyphicon-search"></span>
-            </button>
-        </span>
-    </div>
-</form>
+<nav class="navbar navbar-light bg-light">
+  <form class="form-inline">
+    <input class="form-control mr-sm-2" type="search" name="search" placeholder="Search" aria-label="Search">
+    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+  </form>
+  </nav>
 
 
 <table class="table">
@@ -30,14 +25,15 @@
         <th scope="col">Last Treatement Date</th>
         <th scope="col">Last Treatement Name</th>
   </thead>
+
   <tbody>
   @foreach($patients as $patient)
     <tr>
         <td>{{ $patient->first_name }} {{ $patient->last_name }}</td>
-        <td>{{ $patient->dob }}</td>
-        <td>{{ $patient->division_name }}</td>
-        <td>{{ $patient->latest_treatment}}</td>
-        <td>{{ $patient->subname}}</td>
+        <td>{{date('M d, Y', strtotime($patient->dob))}}</td>
+        <td>{{ $patient->division->name}}</td>
+        <td>{{ $patient->treatments->first()->created_at}}</td>
+        <td>{{ $patient->treatments->first()->name}}</td>
         <td></td>
     </tr>
 
@@ -45,7 +41,9 @@
 
   </tbody> 
 </table>
-
 </div>
+    <div class="pagination justify-content-center">
+    {{ $patients -> links()}}
+    </div>
 
 @endsection

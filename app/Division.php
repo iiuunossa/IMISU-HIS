@@ -9,7 +9,7 @@ class Division extends Model
     Protected $fillable =['name'];
 
     public function patients(){
-        return $this->hasMany(Patient::class);
+        return $this->hasMany(Patient::class)->lasted();
     } 
     
 }

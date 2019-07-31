@@ -20,32 +20,50 @@ class PatientController extends Controller
     }
     public function index()
     {
-        $latest = DB::table('treatments')
-        ->select('patient_id','name', DB::raw('MAX(updated_at) as latest_treatment'))
-        ->groupBy('patient_id','name');
+        // $latest = DB::table('treatments')
+        // ->select('patient_id','name', DB::raw('MAX(updated_at) as latest_treatment'))
+        // ->groupBy('patient_id','name');
 
       
-        $patients = DB::table('patients')
-        ->join('divisions','patients.division_id',"=",'divisions.id')
-        ->joinSub($latest, 'sub_treatment', function ($join){
-            $join->on('sub_treatment.patient_id','=','patients.id');
-            })
+        // $patients = DB::table('patients')
+        // ->join('divisions','patients.division_id',"=",'divisions.id')
+        // ->joinSub($latest, 'sub_treatment', function ($join){
+        //     $join->on('sub_treatment.patient_id','=','patients.id');
+        //     })
      
-        ->select(
-            'patients.*',
-            'divisions.name as division_name',
-            'latest_treatment',
-            'sub_treatment.name as subname'
+        // ->select (
+        //     ('patients.*'),
+        //     'divisions.name as division_name',
+        //     'latest_treatment',
+        //     'sub_treatment.name as subname'
             
-        )
-        ->orderBy('id','asc')
-        ->orderBy('latest_treatment','desc')
-        ->get();
-       // return $patients;
+        // )
         
-      return view('index', compact('patients'));
+        // ->orderBy('id','asc')
+        // ->orderBy('latest_treatment','desc')
+        // ->get();
+       // return $patients;
+ 
+
+    $patients = Patient::paginate(20);
+        return view('index')->with(['patients'=>$patients]);
   
     }
+
+    public function search(Request $request)
+    {
+        $search = $request->get('search');
+       
+        $query = Patient:: where('first_name','Like','%' .$search. '%')
+                        ->orwhere('last_name','Like','%' .$search. '%')
+                        ->orwhereHas('division', function ($sub_query) use ($search) {
+                            $sub_query->where('name','Like','%' .$search. '%');
+                        })
+                        ->paginate(20);
+                
+        return view('index')->with(['patients' => $query]);
+    }
+    
 
     /**
      * Show the form for creating a new resource.
